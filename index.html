@@ -138,6 +138,10 @@
       filter: blur(0);
     }
 
+    .card.is-portrait-in .portrait {
+      transition-duration: 400ms;
+    }
+
     .hud {
       position: fixed;
       right: 14px;
@@ -273,7 +277,6 @@
   <script>
     const FAST = 200;
     const LAND_BUDGET = 460;
-    const SLOW = [260, 420, 680];
 
     const settings = { blur: 0, fade: 250, speed: 80, logic: "land" };
     const blurForLogic = { land: 0, play: 0, reveal: 0 };
@@ -398,15 +401,7 @@
         return;
       }
 
-      let delay = scaled(FAST);
-      if (settings.logic === "reveal" && card.mode === "slowing") {
-        if (card.slowStep >= SLOW.length) {
-          showPortrait(card);
-          return;
-        }
-        delay = scaled(SLOW[card.slowStep++]);
-      }
-
+      const delay = scaled(FAST);
       card.root.style.setProperty("--swap", delay + "ms");
       if (!showFrame(card, nextIndex)) {
         later(card, 16, () => step(card));
@@ -454,7 +449,7 @@
 
     function ensureCycle(card, stagger) {
       if (card.paused) return;
-      if (card.mode !== "fast" && card.mode !== "running" && card.mode !== "slowing") return;
+      if (card.mode !== "fast" && card.mode !== "running") return;
       if (!card.frames[card.index]?.ready) {
         const fallback = card.frames.findIndex((frame) => frame.ready);
         if (fallback >= 0) card.index = fallback;
@@ -475,7 +470,7 @@
 
     function enterIdle(card) {
       stop(card);
-      card.slowStep = 0;
+      card.root.classList.remove("is-portrait-in");
       card.remaining = 0;
       if (reduceMotion || settings.logic === "play") {
         showPortrait(card);
@@ -495,8 +490,9 @@
     function engage(card) {
       if (reduceMotion || !isIdle(card)) return;
       if (settings.logic === "reveal") {
-        card.mode = "slowing";
-        card.slowStep = 0;
+        stop(card);
+        card.root.classList.add("is-portrait-in");
+        showPortrait(card);
         return;
       }
       if (settings.logic === "play") {
@@ -529,7 +525,7 @@
       if (reduceMotion || isIdle(card)) return;
       if (settings.logic === "reveal") {
         card.mode = "fast";
-        card.slowStep = 0;
+        card.root.classList.remove("is-portrait-in");
         hidePortrait(card);
         card.root.style.setProperty("--swap", scaled(FAST) + "ms");
         if (!card.paused) later(card, scaled(FAST), () => step(card));
@@ -614,7 +610,6 @@
         index: 0,
         hold: Math.floor(Math.random() * blurCount),
         mode: "fast",
-        slowStep: 0,
         landBudget: scaled(LAND_BUDGET),
         swapGen: 0,
         remaining: 0,
@@ -670,7 +665,7 @@
         card.paused = hidden;
         if (hidden) stop(card);
         else if (!reduceMotion && card.mode === "running" && settings.logic === "land") queueLand(card);
-        else if (!reduceMotion && (card.mode === "fast" || card.mode === "running" || card.mode === "slowing")) {
+        else if (!reduceMotion && (card.mode === "fast" || card.mode === "running")) {
           later(card, scaled(FAST), () => step(card));
         }
       }
