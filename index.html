@@ -259,7 +259,7 @@
       <fieldset class="hud-logic">
         <legend>Logic</legend>
         <label>
-          <input type="radio" name="logic" value="land" checked>
+          <input type="radio" name="logic" value="land">
           <span>One random blur, then run to the portrait</span>
         </label>
         <label>
@@ -267,7 +267,7 @@
           <span>Portrait first, blur sequence on hover</span>
         </label>
         <label>
-          <input type="radio" name="logic" value="reveal">
+          <input type="radio" name="logic" value="reveal" checked>
           <span>Blur sequence, then reveal the portrait</span>
         </label>
       </fieldset>
@@ -278,7 +278,7 @@
     const FAST = 200;
     const LAND_BUDGET = 460;
 
-    const settings = { blur: 0, fade: 250, speed: 80, logic: "land" };
+    const settings = { blur: 0, fade: 250, speed: 80, logic: "reveal" };
     const blurForLogic = { land: 0, play: 0, reveal: 0 };
     const fadeForLogic = { land: 250, play: 250, reveal: 250 };
     const speedForLogic = { land: 80, play: 80, reveal: 80 };
